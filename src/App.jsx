@@ -14,6 +14,8 @@ import ShowtimeManagement from './pages/admin/ShowtimeManagement';
 import TicketBooking from './pages/admin/TicketBooking';
 import ClientTicketBooking from './pages/ClientTicketBooking';
 import ClientBookingHistory from './pages/ClientBookingHistory';
+import ClientMovies from './pages/ClientMovies';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -23,7 +25,7 @@ export default function App() {
         <main style={{ minHeight: 'calc(100vh - 64px)' }}>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/movies" element={<MoviesPage />} />
+            <Route path="/movies" element={<ClientMovies />} />
             <Route path="/movie/:id" element={<ClientMovieDetails />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/dat-ve/:id" element={<ClientTicketBooking />} />

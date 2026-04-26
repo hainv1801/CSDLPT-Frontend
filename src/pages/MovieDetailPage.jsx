@@ -40,6 +40,21 @@ export default function ClientMovieDetails() {
         <img src={phim?.poster} alt={phim?.ten} style={{ width: '300px', borderRadius: '10px' }} />
         <div>
           <h1 style={{ color: '#ff9800' }}>{phim?.ten}</h1>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+            {Array.isArray(phim?.danhSachTheLoai) && phim.danhSachTheLoai.map((tl, index) => (
+              <span key={index} style={{
+                padding: '5px 12px',
+                backgroundColor: 'rgba(255, 193, 7, 0.1)', // Nền vàng trong suốt
+                border: '1px solid #ffc107',
+                color: '#ffc107',
+                borderRadius: '20px',
+                fontSize: '13px',
+                fontWeight: 'bold'
+              }}>
+                {tl} {/* Đổi tên thuộc tính theo DB của bạn */}
+              </span>
+            ))}
+          </div>
           <p><strong>Thời lượng:</strong> {phim?.thoiLuong} phút</p>
           <p><strong>Nội dung:</strong> {phim?.noiDung}</p>
           <p><strong>Ngôn ngữ chính:</strong> {phim?.ngonNguChinh}</p>
