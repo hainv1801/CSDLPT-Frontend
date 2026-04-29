@@ -15,6 +15,7 @@ import TicketBooking from './pages/admin/TicketBooking';
 import ClientTicketBooking from './pages/ClientTicketBooking';
 import ClientBookingHistory from './pages/ClientBookingHistory';
 import ClientMovies from './pages/ClientMovies';
+import AdminUsers from './pages/admin/AdminUsers';
 
 export default function App() {
   return (
@@ -36,7 +37,7 @@ export default function App() {
               <Route path="phim" element={<MovieManagement />} />
               <Route path="phong-chieu" element={<RoomManagement />} />
               <Route path="suat-chieu" element={<ShowtimeManagement />} />
-              <Route path="nguoi-dung" element={<h2>Khu vực Quản lý Người dùng</h2>} />
+              <Route path="nguoi-dung" element={<AdminUsers />} />
               <Route path="hoa-don" element={<h2>Khu vực Quản lý Hóa đơn</h2>} />
               <Route path="dat-ve/:id" element={<TicketBooking />} />
             </Route>
