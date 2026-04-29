@@ -16,7 +16,7 @@ import ClientTicketBooking from './pages/ClientTicketBooking';
 import ClientBookingHistory from './pages/ClientBookingHistory';
 import ClientMovies from './pages/ClientMovies';
 import AdminUsers from './pages/admin/AdminUsers';
-
+import InvoiceManagement from './pages/admin/InvoiceManagement';
 export default function App() {
   return (
     <AuthProvider>
@@ -38,7 +38,7 @@ export default function App() {
               <Route path="phong-chieu" element={<RoomManagement />} />
               <Route path="suat-chieu" element={<ShowtimeManagement />} />
               <Route path="nguoi-dung" element={<AdminUsers />} />
-              <Route path="hoa-don" element={<h2>Khu vực Quản lý Hóa đơn</h2>} />
+              <Route path="hoa-don" element={<InvoiceManagement />} />
               <Route path="dat-ve/:id" element={<TicketBooking />} />
             </Route>
           </Routes>
