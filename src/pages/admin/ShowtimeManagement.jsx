@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axiosClient from '../../api/axiosClient';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 // Hàm hỗ trợ format mảng ngày giờ từ Spring Boot thành chuẩn yyyy-MM-ddThh:mm cho thẻ input
 const formatDateTimeForInput = (dateTimeData) => {
     if (!dateTimeData) return '';
@@ -31,7 +32,7 @@ export default function ShowtimeManagement() {
     const [theaters, setTheaters] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editingShowtime, setEditingShowtime] = useState(null);
-
+    const { user, isCenterAdmin } = useAuth();
     // State form dữ liệu
     const [formData, setFormData] = useState({
         idPhim: '',
@@ -52,7 +53,9 @@ export default function ShowtimeManagement() {
                 axiosClient.get('/admin/raps')
             ]);
 
-            setShowtimes(resShowtimes.data?.data || resShowtimes.data || []);
+            const showtimesData = resShowtimes.data?.data || resShowtimes.data || [];
+            showtimesData.sort((a, b) => new Date(b.thoiGianBatDau) - new Date(a.thoiGianBatDau));
+            setShowtimes(showtimesData); // Gán mảng đã sắp xếp vào State
             setMovies(resMovies.data?.data || resMovies.data || []);
             setRooms(resRooms.data?.data || resRooms.data || []);
             setTheaters(resTheaters.data?.data || resTheaters.data || []);
@@ -66,7 +69,9 @@ export default function ShowtimeManagement() {
     };
 
     useEffect(() => { fetchData(); }, []);
-
+    const allowedTheaters = isCenterAdmin
+        ? theaters
+        : theaters.filter(t => t.khuVuc === user?.maCoSo);
     // 2. Mở Modal
     const openModal = (showtime = null) => {
         if (showtime) {
@@ -82,9 +87,10 @@ export default function ShowtimeManagement() {
             });
         } else {
             setEditingShowtime(null);
+            const defaultRapId = allowedTheaters.length > 0 ? (allowedTheaters[0].id_Rap || allowedTheaters[0].id) : '';
             setFormData({
                 idPhim: movies.length > 0 ? (movies[0].id || movies[0].idPhim) : '',
-                idRap: theaters.length > 0 ? theaters[0].id_Rap : '',
+                idRap: defaultRapId,
                 idPhongChieu: '',
                 thoiGianBatDau: '',
                 giaMoiVe: '50000' // Giá vé mặc định
@@ -228,12 +234,14 @@ export default function ShowtimeManagement() {
                                 <select
                                     className="form-control"
                                     value={formData.idRap}
-                                    onChange={handleTheaterChange} // Gọi hàm vừa tạo
+                                    onChange={handleTheaterChange}
                                     required
+                                    disabled={!isCenterAdmin} // 👉 KHÓA CHỈ ĐỌC VỚI CHI NHÁNH
                                 >
                                     <option value="" disabled>-- Chọn rạp --</option>
-                                    {theaters.map(t => (
-                                        <option key={t.id_Rap} value={t.id_Rap}>{t.tenRap}</option>
+                                    {/* 👉 DÙNG MẢNG ĐÃ LỌC */}
+                                    {allowedTheaters.map(t => (
+                                        <option key={t.id_Rap || t.id} value={t.id_Rap || t.id}>{t.tenRap}</option>
                                     ))}
                                 </select>
                             </div>

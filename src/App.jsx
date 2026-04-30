@@ -17,6 +17,9 @@ import ClientBookingHistory from './pages/ClientBookingHistory';
 import ClientMovies from './pages/ClientMovies';
 import AdminUsers from './pages/admin/AdminUsers';
 import InvoiceManagement from './pages/admin/InvoiceManagement';
+import RequireCenterAdmin from './pages/admin/RequireCenterAdmin';
+import AdminDashboard from './pages/admin/AdminDashboard';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -32,9 +35,10 @@ export default function App() {
             <Route path="/dat-ve/:id" element={<ClientTicketBooking />} />
             <Route path="/lich-su-mua-ve" element={<ClientBookingHistory />} />
             <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<h2>Thống kê tổng quan (Sắp ra mắt)</h2>} />
+              <Route index element={<AdminDashboard />} />
               {/* Các trang quản lý con sẽ được nhét vào thẻ <Outlet /> của AdminLayout */}
-              <Route path="phim" element={<MovieManagement />} />
+              <Route path="thong-ke" element={<AdminDashboard />}></Route>
+              <Route path="phim" element={<RequireCenterAdmin><MovieManagement /></RequireCenterAdmin>} />
               <Route path="phong-chieu" element={<RoomManagement />} />
               <Route path="suat-chieu" element={<ShowtimeManagement />} />
               <Route path="nguoi-dung" element={<AdminUsers />} />

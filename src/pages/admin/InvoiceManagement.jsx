@@ -21,10 +21,11 @@ const InvoiceManagement = () => {
         setLoading(true);
         try {
             const backendPage = page - 1;
-            const query = `page=${backendPage}&size=${pageSize}${filter ? `&filter=${filter}` : ""}`;
-            const res = await axiosClient.get(`/api/payments?${query}`);
+            const query = `page=${backendPage}&size=${pageSize}&sort=ngayThanhToan,desc${filter ? `&filter=${filter}` : ""}`; const res = await axiosClient.get(`/api/payments?${query}`);
             if (res.data && res.data.data) {
-                setInvoices(res.data.data.result);
+                const invoicesData = res.data.data.result;
+                invoicesData.sort((a, b) => new Date(b.ngayThanhToan) - new Date(a.ngayThanhToan));
+                setInvoices(invoicesData);
                 setMeta(res.data.data.meta);
             }
         } catch (error) {

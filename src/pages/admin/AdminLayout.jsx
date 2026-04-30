@@ -7,7 +7,7 @@ export default function AdminLayout() {
   const { user, isAdmin, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
+  const { isCenterAdmin } = useAuth();
   // Kiểm tra quyền truy cập (Route Guard)
   useEffect(() => {
     if (!isLoading) {
@@ -31,8 +31,8 @@ export default function AdminLayout() {
         </div>
 
         <nav style={{ flex: 1, padding: '20px 10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <Link to="/admin" style={getNavStyle(location.pathname === '/admin')}>📊 Tổng quan</Link>
-          <Link to="/admin/phim" style={getNavStyle(location.pathname.includes('/admin/phim'))}>🎬 Quản lý Phim</Link>
+          <Link to="/admin/thong-ke" style={getNavStyle(location.pathname.includes('admin/thong-ke'))}>📊 Tổng quan</Link>
+          {isCenterAdmin && <Link to="/admin/phim" style={getNavStyle(location.pathname.includes('/admin/phim'))}>🎬 Quản lý Phim</Link>}
           <Link to="/admin/phong-chieu" style={getNavStyle(location.pathname.includes('/admin/phong-chieu'))}>🚪 Quản lý Phòng chiếu</Link>
           <Link to="/admin/suat-chieu" style={getNavStyle(location.pathname.includes('/admin/suat-chieu'))}>📅 Quản lý Suất chiếu</Link>
           <Link to="/admin/nguoi-dung" style={getNavStyle(location.pathname.includes('/admin/nguoi-dung'))}>👥 Quản lý Người dùng</Link>

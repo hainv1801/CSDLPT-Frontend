@@ -17,8 +17,8 @@ export function AuthProvider({ children }) {
         try {
           // Gọi API lấy thông tin user từ token (bạn cần thay endpoint này cho khớp backend)
           const res = await axiosClient.get('/api/v1/users/me');
-          console.log(res);
           setUser(res.data.data);
+          console.log("User", res.data.data);
         } catch (error) {
           console.error("Token hết hạn hoặc không hợp lệ");
           localStorage.removeItem('access_token');
@@ -33,7 +33,7 @@ export function AuthProvider({ children }) {
   const login = async (taiKhoan, matKhau) => {
     try {
       const res = await axiosClient.post('/api/v1/auth/login', { taiKhoan, matKhau });
-      console.log(res.data)
+      console.log("Login", res.data.data.user)
       // Giả sử backend trả về: { access_token: "...", user: {...} }
       localStorage.setItem('access_token', res.data.data.access_token);
       setUser(res.data.data.user); // Lưu thông tin user vào state
@@ -65,10 +65,10 @@ export function AuthProvider({ children }) {
   };
 
   const isAdmin = user?.vaiTro === 'ROLE_QUANLY' || user?.vaiTro === 'QUANLY';
-
+  const isCenterAdmin = isAdmin && user?.maCoSo === 'KV_00';
   return (
     <AuthContext.Provider value={{
-      user, setUser, login, register, logout, isAdmin,
+      user, setUser, login, register, logout, isAdmin, isCenterAdmin,
       showLogin, setShowLogin, isLoading
     }}>
       {!isLoading && children}

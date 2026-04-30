@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import axiosClient from '../../api/axiosClient';
-
+import { useAuth } from '../../context/AuthContext';
 export default function RoomManagement() {
     const [rooms, setRooms] = useState([]);
     const [theaters, setTheaters] = useState([]); // State lưu danh sách rạp
     const [loading, setLoading] = useState(true);
-
+    const { user, isCenterAdmin } = useAuth();
     const [showModal, setShowModal] = useState(false);
     const [editingRoom, setEditingRoom] = useState(null);
 
@@ -38,7 +38,9 @@ export default function RoomManagement() {
     };
 
     useEffect(() => { fetchData(); }, []);
-
+    const allowedTheaters = isCenterAdmin
+        ? theaters
+        : theaters.filter(t => (t.khuVuc || t.maCoSo) === user?.maCoSo);
     // 2. Mở form Thêm/Sửa
     const openModal = (room = null) => {
         if (room) {
@@ -55,7 +57,7 @@ export default function RoomManagement() {
                 soHang: '',
                 soCot: '',
                 trangThai: 'DANGHOATDONG',
-                idRap: theaters.length > 0 ? theaters[0].id_Rap : ''
+                idRap: allowedTheaters.length > 0 ? (allowedTheaters[0].id_Rap || allowedTheaters[0].id) : ''
             });
         }
         setShowModal(true);
@@ -144,7 +146,6 @@ export default function RoomManagement() {
                         <h3>{editingRoom ? "📝 Chỉnh sửa phòng" : "✨ Thêm phòng mới"}</h3>
                         <form onSubmit={handleSubmit}>
 
-                            {/* Ô CHỌN RẠP MỚI THÊM */}
                             <div className="form-group" style={{ marginTop: '15px' }}>
                                 <label>Chọn Rạp</label>
                                 <select
@@ -152,10 +153,12 @@ export default function RoomManagement() {
                                     value={formData.idRap}
                                     onChange={e => setFormData({ ...formData, idRap: e.target.value })}
                                     required
+                                    disabled={!isCenterAdmin} // 👉 KHÓA Ô SELECT NẾU LÀ CHI NHÁNH
                                 >
                                     <option value="" disabled>-- Chọn rạp quản lý --</option>
-                                    {theaters.map(t => (
-                                        <option key={t.id_Rap} value={t.id_Rap}>{t.tenRap}</option>
+                                    {/* 👉 DÙNG MẢNG ĐÃ LỌC */}
+                                    {allowedTheaters.map(t => (
+                                        <option key={t.id_Rap || t.id} value={t.id_Rap || t.id}>{t.tenRap}</option>
                                     ))}
                                 </select>
                             </div>
