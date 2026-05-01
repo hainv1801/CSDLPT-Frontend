@@ -211,7 +211,7 @@ export default function ShowtimeManagement() {
             {/* MODAL */}
             {showModal && (
                 <div className="modal-overlay">
-                    <div className="modal" style={{ maxWidth: '500px', color: 'black' }}>
+                    <div className="modal" style={{ maxWidth: '500px', color: 'white' }}>
                         <h3>{editingShowtime ? "📝 Sửa suất chiếu" : "✨ Thêm suất chiếu"}</h3>
                         <form onSubmit={handleSubmit}>
 
