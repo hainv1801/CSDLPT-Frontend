@@ -2,28 +2,41 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
 
+// Hàm phụ trợ tạo danh sách 7 ngày tới (YYYY-MM-DD)
+const generateDates = (numDays) => {
+  const dates = [];
+  for (let i = 0; i < numDays; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    dates.push(d.toISOString().split('T')[0]);
+  }
+  return dates;
+};
+
 export default function ClientMovieDetails() {
   const { id } = useParams();
-  const idPhim = id; // Lấy ID phim từ URL (VD: /phim/1)
+  const idPhim = id;
   const navigate = useNavigate();
 
   const [phim, setPhim] = useState(null);
   const [lichChieu, setLichChieu] = useState([]);
 
-  // Giả sử khách đang xem lịch chiếu của ngày hôm nay
+  // Lấy ra ngày hôm nay chuẩn định dạng
   const today = new Date().toISOString().split('T')[0];
 
+  // State: Lưu ngày khách hàng đang chọn (Mặc định là hôm nay)
+  const [selectedDate, setSelectedDate] = useState(today);
+
+  // State: Lưu danh sách 7 ngày tới để in ra UI
+  const [availableDates] = useState(generateDates(7));
+
   useEffect(() => {
-    // 1. Gọi API lấy chi tiết phim
-    // 2. Gọi API lấy lịch chiếu theo Phim và Ngày (Dùng hàm getLichTheoPhim ở backend của bạn)
     const fetchDetails = async () => {
       try {
-        // Thay bằng đường dẫn API thật của bạn
         const resPhim = await axiosClient.get(`/public/phim/${idPhim}`);
-        const resLich = await axiosClient.get(`/public/suat-chieu/phim/${idPhim}?ngay=${today}`);
+        // Chuyền tham số selectedDate vào API thay vì fix cứng today
+        const resLich = await axiosClient.get(`/public/suat-chieu/phim/${idPhim}?ngay=${selectedDate}`);
 
-        console.log(resPhim.data);
-        console.log("Lịch chiếu", resLich.data.data);
         setPhim(resPhim.data?.data || resPhim.data);
         setLichChieu(resLich.data?.data || resLich.data);
       } catch (error) {
@@ -31,12 +44,12 @@ export default function ClientMovieDetails() {
       }
     };
     fetchDetails();
-  }, [idPhim, today]);
+  }, [idPhim, selectedDate]); // Thêm selectedDate vào dependency array để API tự gọi lại khi đổi ngày
 
   return (
     <div className="client-container" style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto', color: 'white' }}>
       {/* THÔNG TIN PHIM */}
-      <div style={{ display: 'flex', gap: '30px', marginBottom: '50px' }}>
+      <div style={{ display: 'flex', gap: '30px', marginBottom: '40px', flexWrap: 'wrap' }}>
         <img src={phim?.poster} alt={phim?.ten} style={{ width: '300px', borderRadius: '10px' }} />
         <div>
           <h1 style={{ color: '#ff9800' }}>{phim?.ten}</h1>
@@ -44,36 +57,63 @@ export default function ClientMovieDetails() {
             {Array.isArray(phim?.danhSachTheLoai) && phim.danhSachTheLoai.map((tl, index) => (
               <span key={index} style={{
                 padding: '5px 12px',
-                backgroundColor: 'rgba(255, 193, 7, 0.1)', // Nền vàng trong suốt
+                backgroundColor: 'rgba(255, 193, 7, 0.1)',
                 border: '1px solid #ffc107',
                 color: '#ffc107',
                 borderRadius: '20px',
                 fontSize: '13px',
                 fontWeight: 'bold'
               }}>
-                {tl} {/* Đổi tên thuộc tính theo DB của bạn */}
+                {tl}
               </span>
             ))}
           </div>
           <p><strong>Thời lượng:</strong> {phim?.thoiLuong} phút</p>
           <p><strong>Nội dung:</strong> {phim?.noiDung}</p>
           <p><strong>Ngôn ngữ chính:</strong> {phim?.ngonNguChinh}</p>
-
         </div>
       </div>
 
-      {/* LỊCH CHIẾU */}
-      <h2 style={{ borderBottom: '2px solid #ff9800', paddingBottom: '10px' }}>LỊCH CHIẾU HÔM NAY</h2>
+      {/* KHU VỰC LỊCH CHIẾU */}
+      <h2 style={{ borderBottom: '2px solid #ff9800', paddingBottom: '10px', marginBottom: '20px' }}>LỊCH CHIẾU</h2>
 
+      {/* THANH CHỌN NGÀY */}
+      <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', marginBottom: '30px', paddingBottom: '10px' }}>
+        {availableDates.map(date => {
+          const d = new Date(date);
+          const dateStr = `${d.getDate()}/${d.getMonth() + 1}`;
+          const isSelected = date === selectedDate;
+
+          return (
+            <button
+              key={date}
+              onClick={() => setSelectedDate(date)}
+              style={{
+                padding: '10px 20px',
+                backgroundColor: isSelected ? '#ff9800' : 'transparent',
+                color: isSelected ? 'black' : '#ff9800',
+                border: '1px solid #ff9800',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {date === today ? "Hôm nay" : dateStr}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* HIỂN THỊ DANH SÁCH RẠP VÀ GIỜ CHIẾU */}
       {lichChieu.length === 0 ? (
-        <p>Hôm nay chưa có lịch chiếu cho phim này.</p>
+        <p style={{ color: '#aaa', fontStyle: 'italic' }}>Không có lịch chiếu cho phim này trong ngày đã chọn.</p>
       ) : (
         lichChieu.map((rap, index) => (
           <div key={index} style={{ backgroundColor: '#1e1e2d', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
             <h3 style={{ marginTop: 0, color: '#4CAF50' }}>🏢 {rap.tenRap}</h3>
 
             <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-              {/* Render danh sách các suất chiếu (nút bấm giờ) */}
               {rap.danhSachSuat.map((suat) => (
                 <button
                   key={suat.idSuat}
@@ -87,9 +127,7 @@ export default function ClientMovieDetails() {
                     fontSize: '16px',
                     fontWeight: 'bold'
                   }}
-                  // 👉 ĐIỂM QUAN TRỌNG NHẤT LÀ ĐÂY:
-                  // Chuyển hướng sang trang Sơ đồ ghế và mang theo ID suất chiếu
-                  onClick={() => navigate(`/dat-ve/${suat.idSuat} `)}
+                  onClick={() => navigate(`/dat-ve/${suat.idSuat}`)}
                 >
                   {suat.batDau}
                 </button>
