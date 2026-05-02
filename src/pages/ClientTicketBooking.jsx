@@ -2,14 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
 import './admin/TicketBooking.css'; // Tái sử dụng lại file CSS sơ đồ ghế lúc nãy
-
+import { useAuth } from '../context/AuthContext';
 export default function ClientTicketBooking() {
     const { id } = useParams();
     const navigate = useNavigate();
-
-
-    // Trong thực tế: const user = JSON.parse(localStorage.getItem('currentUser'));
-    const currentUser = JSON.parse(localStorage.getItem('cinemax_user'));
+    const { user } = useAuth();
 
     const [suatChieu, setSuatChieu] = useState(null);
     const [danhSachGhe, setDanhSachGhe] = useState([]);
@@ -21,7 +18,7 @@ export default function ClientTicketBooking() {
 
     useEffect(() => {
         // Nếu chưa đăng nhập -> Đá văng ra trang Login
-        if (!currentUser) {
+        if (!user) {
             alert("Vui lòng đăng nhập để đặt vé!");
             navigate('/login');
             return;
@@ -90,7 +87,7 @@ export default function ClientTicketBooking() {
         const payload = {
             idSuatChieu: suatChieu.id,
             danhSachIdGhe: gheDangChon,
-            idNguoiDung: currentUser.id, // 👉 Lấy ID khách hàng thực tế
+            idNguoiDung: user.id, // 👉 Lấy ID khách hàng thực tế
             idPhuongThucThanhToan: phuongThucTT   // 👉 Lấy ID phương thức khách vừa chọn
         };
 

@@ -1,18 +1,16 @@
 import { useState, useEffect } from 'react';
 import axiosClient from '../api/axiosClient';
-
+import { useAuth } from '../context/AuthContext';
 export default function ClientBookingHistory() {
     const [lichSu, setLichSu] = useState([]);
     const [loading, setLoading] = useState(true);
-
-
-    const currentUser = JSON.parse(localStorage.getItem('cinemax_user'));
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchHistory = async () => {
             try {
                 // Gọi API lấy lịch sử
-                const response = await axiosClient.get(`/api/payments/lich-su/${currentUser.id}`);
+                const response = await axiosClient.get(`/api/payments/lich-su/${user.id}`);
 
                 const data = response.data?.data || response.data || [];
                 setLichSu(Array.isArray(data) ? data : []);
